@@ -6,6 +6,13 @@ Proyek ini dibangun menggunakan **Python** dan kerangka kerja antarmuka **Gradio
 
 ---
 
+## 🌐 Live Demo & Website Portofolio
+
+Aplikasi interaktif notebook portofolio ini dapat diakses secara langsung melalui tautan publik berikut:  
+👉 **[https://pusakamediaid-dotcom.github.io/Note-Book/](https://pusakamediaid-dotcom.github.io/Note-Book/)**
+
+---
+
 ## 🚀 Fitur Utama
 
 - **🧹 Heuristic Text Cleaner**: Membersihkan draf tulisan kotor, transkrip video otomatis, atau salinan web berantakan dari tag HTML gantung, timestamp log `[00:00:00]`, metadata berlebih, spasi ganda, dan baris kosong ganda secara lokal.
