@@ -37,7 +37,7 @@ with gr.Blocks(title="Smart Content Purifier & Summary Hub", theme=gr.themes.Sof
         """
         # 📚 Smart Content Purifier & Summary Hub
         ### Transformasikan Teks Mentah Menjadi Konten Siap Pakai Premium
-        Dibuat oleh **Pusaka Media ID** sebagai starter kit asisten AI praktis untuk membersihkan, meringkas, dan mengekspor konten buku digital (ebook), catatan belajar, caption media sosial, dan produk informasi lainnya.
+        Dibuat oleh **Pusaka Media ID** sebagai starter kit asisten AI praktis untuk membersihkan, meringkas, dan mengekspor konten buku digital (ebook), catatan belajar, caption media sosial, dan produk digital lainnya.
         """
     )
     
@@ -97,5 +97,5 @@ with gr.Blocks(title="Smart Content Purifier & Summary Hub", theme=gr.themes.Sof
     )
 
 if __name__ == "__main__":
-    # Launch locally or inside HF Spaces
-    demo.queue().launch(server_name="0.0.0.0", server_port=7860)
+    # Launch simply without hardcoding host/port for maximum compatibility with HF Spaces
+    demo.queue().launch()
