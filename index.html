@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pusaka Notebook — Editor & Penyimpanan Catatan Modern</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['Fira Code', 'JetBrains Mono', 'Consolas', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Custom Style -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Marked.js for Markdown Preview -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 h-screen overflow-hidden flex flex-col font-sans transition-colors duration-200">
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+    <span id="toast-message" class="text-sm font-medium">Catatan berhasil disimpan!</span>
+  </div>
+
+  <!-- App Wrapper -->
+  <div class="flex h-full w-full overflow-hidden">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside id="sidebar" class="w-80 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex flex-col h-full shrink-0 transition-all duration-300">
+      
+      <!-- Sidebar Header -->
+      <div class="p-4 border-b border-slate-100 dark:border-slate-900 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-white font-bold shadow-md shadow-orange-500/20">
+            <i data-lucide="book-open" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-slate-800 dark:text-white leading-tight">Pusaka Notes</h1>
+            <span class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold uppercase tracking-wider">Pusaka Media ID</span>
+          </div>
+        </div>
+        
+        <!-- Theme Toggle -->
+        <button id="theme-toggle" class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900 transition-colors" title="Ubah Tema">
+          <i data-lucide="sun" class="w-5 h-5 block dark:hidden"></i>
+          <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+        </button>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="p-4 flex flex-col gap-2">
+        <button id="btn-new-note" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/10 transition-all duration-200 transform active:scale-[0.98]">
+          <i data-lucide="plus-circle" class="w-5 h-5"></i>
+          <span>Buat Catatan Baru</span>
+        </button>
+      </div>
+
+      <!-- Search & Sort Controls -->
+      <div class="px-4 py-2 flex items-center gap-2">
+        <div class="relative flex-1">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+          <input id="search-input" type="text" placeholder="Cari catatan..." class="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 dark:text-white transition-all">
+        </div>
+        
+        <!-- Sort Dropdown Toggle -->
+        <button id="sort-toggle" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400" title="Urutkan">
+          <i data-lucide="arrow-up-down" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Sort Selection Panel (Hidden by default) -->
+      <div id="sort-panel" class="hidden px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border-y border-slate-100 dark:border-slate-900 flex flex-col gap-2 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="font-medium text-slate-500">Urutkan Berdasarkan:</span>
+          <button id="btn-close-sort" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+        </div>
+        <div class="grid grid-cols-2 gap-1.5">
+          <button id="sort-by-updated" class="py-1.5 px-2 rounded-lg bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20 text-left font-medium">Terakhir Diubah</button>
+          <button id="sort-by-created" class="py-1.5 px-2 rounded-lg bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent text-slate-600 dark:text-slate-400 text-left">Tanggal Dibuat</button>
+          <button id="sort-by-name" class="py-1.5 px-2 rounded-lg bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent text-slate-600 dark:text-slate-400 text-left col-span-2">Nama Catatan</button>
+        </div>
+        <div class="flex items-center gap-3 mt-1 pt-1.5 border-t border-slate-200 dark:border-slate-800">
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-600 dark:text-slate-400">
+            <input type="radio" name="sort-dir" value="desc" checked class="text-orange-500 focus:ring-orange-500">
+            <span>Menurun (Desc)</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-600 dark:text-slate-400">
+            <input type="radio" name="sort-dir" value="asc" class="text-orange-500 focus:ring-orange-500">
+            <span>Menaik (Asc)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Document List (Scrollable) -->
+      <div id="document-list" class="flex-1 overflow-y-auto p-4 space-y-2">
+        <!-- Dynanically populated list of documents -->
+        <div class="text-center py-8 text-slate-400 text-sm">
+          <i data-lucide="folder-open" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+          Belum ada catatan
+        </div>
+      </div>
+
+      <!-- Sidebar Footer (Branding/Bragging) -->
+      <div class="p-4 border-t border-slate-100 dark:border-slate-900 bg-slate-50 dark:bg-slate-950 text-center">
+        <a href="https://github.com/pusakamediaid-dotcom" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-orange-500 dark:text-slate-400 dark:hover:text-amber-400 transition-colors">
+          <i data-lucide="github" class="w-3.5 h-3.5"></i>
+          <span>GitHub: pusakamediaid-dotcom</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-slate-900">
+      
+      <!-- LANDING VIEW (Shown when no doc active) -->
+      <div id="landing-view" class="flex-1 overflow-y-auto flex flex-col items-center justify-center p-6 sm:p-12 text-center animate-slide-in">
+        
+        <!-- Hero Section -->
+        <div class="max-w-2xl mx-auto space-y-8">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 font-semibold text-xs tracking-wide uppercase">
+            <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+            <span>Pusaka Media ID — Digital Workspace</span>
+          </div>
+
+          <div class="space-y-3">
+            <h2 class="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+              Tulis, Simpan, & Kelola <br class="hidden sm:inline">Catatan Anda dengan <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">Pusaka Notebook</span>
+            </h2>
+            <p class="text-base sm:text-lg text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
+              Buku catatan digital profesional dengan dukungan multi-format, render pratinjau instan, tema gelap, penyimpanan otomatis, serta ekspor PDF/HTML sekali klik.
+            </p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button id="btn-create-first" class="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-orange-500/20 flex items-center gap-2 transform transition hover:scale-105 active:scale-95 w-full sm:w-auto justify-center">
+              <i data-lucide="sparkles" class="w-5 h-5 text-amber-200"></i>
+              <span>Buat Catatan Pertama Anda</span>
+            </button>
+            <a href="https://github.com/pusakamediaid-dotcom/Note-Book" target="_blank" class="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transform transition hover:scale-105 active:scale-95 w-full sm:w-auto justify-center">
+              <i data-lucide="github" class="w-5 h-5"></i>
+              <span>Dokumentasi GitHub</span>
+            </a>
+          </div>
+
+          <!-- Feature Highlights Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-12 border-t border-slate-200 dark:border-slate-800">
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 shadow-sm">
+              <div class="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center mx-auto mb-3">
+                <i data-lucide="code" class="w-4 h-4"></i>
+              </div>
+              <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-1">Multi-Format</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">Markdown, HTML, JS, CSS, Python, JSON</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 shadow-sm">
+              <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-3">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </div>
+              <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-1">Pratinjau Instan</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">Bilah pemisah render live untuk HTML & MD</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 shadow-sm">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-3">
+                <i data-lucide="save" class="w-4 h-4"></i>
+              </div>
+              <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-1">Auto Save</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">Catatan disimpan otomatis saat Anda mengetik</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 shadow-sm">
+              <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-3">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+              </div>
+              <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-1">Ekspor PDF</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">Ekspor instan ke PDF/HTML bawaan browser</p>
+            </div>
+          </div>
+          
+          <!-- Copyright Info -->
+          <div class="pt-6 text-xs text-slate-400 dark:text-slate-500">
+            &copy; 2026 Pusaka Media ID. Diadaptasi dengan bangga untuk Note Book App.
+          </div>
+        </div>
+      </div>
+
+      <!-- EDITOR VIEW (Hidden when no doc active) -->
+      <div id="editor-view" class="hidden flex-1 flex flex-col overflow-hidden animate-slide-in">
+        
+        <!-- Editor Header Toolbar -->
+        <div class="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-4 flex flex-wrap items-center justify-between gap-3 shrink-0">
+          
+          <!-- Document Metadata & Rename -->
+          <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+            <div id="doc-icon" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold text-xs shadow-inner">
+              TXT
+            </div>
+            <div class="flex-1">
+              <input id="doc-title-input" type="text" value="Untitled Document" class="font-bold text-slate-800 dark:text-white text-lg bg-transparent border-b border-transparent hover:border-slate-300 dark:hover:border-slate-700 focus:border-orange-500 focus:outline-none w-full max-w-sm transition-colors py-0.5">
+              <div class="text-xs text-slate-400 flex items-center gap-2">
+                <span id="doc-meta-date">Dibuat: -</span>
+                <span>&bull;</span>
+                <span id="auto-save-indicator" class="text-emerald-500 flex items-center gap-1"><i data-lucide="cloud-check" class="w-3.5 h-3.5 inline"></i> Tersimpan otomatis</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Format and Preview Toggles -->
+          <div class="flex items-center gap-2">
+            
+            <!-- Format Selector -->
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs text-slate-400 font-medium hidden sm:inline">Format:</span>
+              <select id="doc-format-select" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-sm font-semibold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 cursor-pointer">
+                <option value="plaintext">Plain Text (.txt)</option>
+                <option value="markdown">Markdown (.md)</option>
+                <option value="html">HTML (.html)</option>
+                <option value="javascript">JavaScript (.js)</option>
+                <option value="python">Python (.py)</option>
+                <option value="json">JSON (.json)</option>
+                <option value="css">CSS (.css)</option>
+              </select>
+            </div>
+
+            <!-- Preview Toggle Button (Only visible for MD and HTML) -->
+            <button id="btn-toggle-preview" class="hidden p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 flex items-center gap-1.5 font-medium text-sm transition-all" title="Pratinjau Hasil Render">
+              <i data-lucide="eye" class="w-4 h-4"></i>
+              <span class="hidden md:inline">Pratinjau</span>
+            </button>
+            
+            <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1"></div>
+
+            <!-- Copy Code -->
+            <button id="btn-copy-code" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 transition-all" title="Salin Catatan">
+              <i data-lucide="copy" class="w-4 h-4"></i>
+            </button>
+
+            <!-- EXPORT TRIGGER -->
+            <div class="relative inline-block text-left">
+              <button id="btn-export-dropdown" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-sm flex items-center gap-1.5 transition-all">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Ekspor</span>
+                <i data-lucide="chevron-down" class="w-3 h-3"></i>
+              </button>
+              
+              <!-- Export Menu Dropdown -->
+              <div id="export-menu" class="hidden absolute right-0 mt-2 w-56 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xl z-30 py-1 text-slate-700 dark:text-slate-300">
+                <button id="export-raw" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-900 flex items-center gap-2">
+                  <i data-lucide="file-code" class="w-4 h-4 text-orange-500"></i>
+                  <div>
+                    <div class="font-bold text-xs">Unduh File Asli</div>
+                    <div class="text-[10px] text-slate-400">Format file asli catatan</div>
+                  </div>
+                </button>
+                <button id="export-html" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-900 flex items-center gap-2 border-t border-slate-100 dark:border-slate-900">
+                  <i data-lucide="html5" class="w-4 h-4 text-amber-500"></i>
+                  <div>
+                    <div class="font-bold text-xs">Simpen Sebagai HTML</div>
+                    <div class="text-[10px] text-slate-400">Ekspor mandiri dengan styling</div>
+                  </div>
+                </button>
+                <button id="export-pdf" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-900 flex items-center gap-2 border-t border-slate-100 dark:border-slate-900">
+                  <i data-lucide="printer" class="w-4 h-4 text-emerald-500"></i>
+                  <div>
+                    <div class="font-bold text-xs">Cetak / Simpan PDF</div>
+                    <div class="text-[10px] text-slate-400">Gunakan fitur print browser Anda</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1"></div>
+
+            <!-- Delete Doc Button -->
+            <button id="btn-delete-doc" class="p-2 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all" title="Hapus Catatan">
+              <i data-lucide="trash-2" class="w-4.5 h-4.5"></i>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- Editor Work Area (Dual pane for Preview, single textarea for typing) -->
+        <div id="editor-container" class="flex-1 flex overflow-hidden bg-white dark:bg-slate-950">
+          
+          <!-- Text Editing Area -->
+          <div id="textarea-pane" class="flex-1 h-full flex flex-col relative overflow-hidden">
+            <textarea id="editor-textarea" class="flex-1 w-full h-full p-6 bg-transparent text-slate-800 dark:text-slate-100 border-none outline-none focus:ring-0 editor-textarea text-sm md:text-base selection:bg-orange-500/10 select-text" placeholder="Mulai ketik sesuatu di sini..."></textarea>
+          </div>
+
+          <!-- Vertical Split Border (Hidden unless preview is split) -->
+          <div id="preview-divider" class="hidden w-[1px] h-full bg-slate-200 dark:bg-slate-800 relative z-10 shrink-0"></div>
+
+          <!-- Real-time Live Rendering Preview Pane (Hidden by default) -->
+          <div id="preview-pane" class="hidden flex-1 h-full overflow-y-auto bg-slate-50 dark:bg-slate-900 p-6 md:p-8 shrink-0">
+            <div id="preview-placeholder" class="text-slate-400 dark:text-slate-500 text-sm flex flex-col items-center justify-center h-full text-center">
+              <i data-lucide="eye" class="w-8 h-8 mb-2 opacity-50 text-slate-300"></i>
+              Pratinjau kosong. Mulai ketik untuk melihat hasil render.
+            </div>
+            <!-- Rendered Output Area -->
+            <article id="preview-output" class="prose max-w-none dark:prose-invert prose-slate dark:prose-orange prose-sm md:prose-base leading-relaxed dark:text-slate-200">
+              <!-- Rendered Markdown/HTML goes here -->
+            </article>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- PRINT WINDOW WRAPPER TARGET (Only visible during print calls) -->
+  <div id="print-area" class="hidden bg-white text-slate-900 p-8">
+    <div class="border-b-2 border-slate-200 pb-4 mb-6">
+      <h1 id="print-title" class="text-3xl font-black mb-1">Judul Dokumen</h1>
+      <div id="print-meta" class="text-xs text-slate-400">
+        Format: - | Dibuat: - | Diubah: -
+      </div>
+    </div>
+    <div id="print-content" class="whitespace-pre-wrap font-mono text-xs leading-relaxed bg-slate-50 p-6 border border-slate-200 rounded-lg">
+      Isi dokumen.
+    </div>
+    <div class="mt-12 pt-4 border-t border-slate-100 text-[10px] text-slate-400 text-center">
+      Diekspor dari Pusaka Notebook &mdash; Pusaka Media ID
+    </div>
+  </div>
+
+  <!-- Application Logic Code -->
+  <script src="app.js" defer></script>
+</body>
+</html>
