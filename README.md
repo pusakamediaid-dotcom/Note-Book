@@ -1,3 +1,15 @@
+---
+title: Smart Content Purifier & Summary Hub
+emoji: 📚
+colorFrom: blue
+colorTo: indigo
+sdk: gradio
+sdk_version: 4.44.0
+app_file: app.py
+pinned: false
+license: mit
+---
+
 # 📚 Smart Content Purifier & Summary Hub
 
 Aplikasi AI praktis untuk membersihkan, meringkas, dan mengubah teks mentah menjadi konten siap pakai berkualitas tinggi untuk ebook, catatan belajar, caption media sosial, dan produk digital berharga lainnya.
@@ -8,8 +20,13 @@ Proyek ini dibangun menggunakan **Python** dan kerangka kerja antarmuka **Gradio
 
 ## 🌐 Live Demo & Website Portofolio
 
-Aplikasi interaktif notebook portofolio ini dapat diakses secara langsung melalui tautan publik berikut:  
-👉 **[https://pusakamediaid-dotcom.github.io/Note-Book/](https://pusakamediaid-dotcom.github.io/Note-Book/)**
+Aplikasi interaktif notebook portofolio ini dapat diakses secara langsung melalui tautan publik berikut:
+
+1. **GitHub Pages (Static Notebook UI)**:  
+   👉 **[https://pusakamediaid-dotcom.github.io/Note-Book/](https://pusakamediaid-dotcom.github.io/Note-Book/)**
+
+2. **Hugging Face Spaces (Interactive AI App)**:  
+   👉 **[https://huggingface.co/spaces/pusakamediaid123/note-book-smart-content-purifier](https://huggingface.co/spaces/pusakamediaid123/note-book-smart-content-purifier)**
 
 ---
 
