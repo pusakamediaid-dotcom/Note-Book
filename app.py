@@ -1,4 +1,7 @@
 import os
+# Force local loopback connections to bypass proxies to prevent Gradio launch checks from failing on HF Spaces
+os.environ["no_proxy"] = "localhost,127.0.0.1,::1"
+
 import gradio as gr
 from core.cleaner import TextCleaner
 from core.processor import ContentProcessor
