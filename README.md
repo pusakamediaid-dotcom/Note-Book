@@ -1,37 +1,87 @@
-# Note Book 📚
+# 📚 Smart Content Purifier & Summary Hub
 
-Aplikasi catatan dan editor kode berbasis web modern, minimalis, dan elegan yang dirancang untuk mendukung produktivitas menulis Anda. Dikembangkan khusus untuk **Pusaka Media ID**.
+Aplikasi AI praktis untuk membersihkan, meringkas, dan mengubah teks mentah menjadi konten siap pakai berkualitas tinggi untuk ebook, catatan belajar, caption media sosial, dan produk digital berharga lainnya.
 
-Aplikasi ini diadaptasi dari struktur modern **TextVault** dengan visual yang ditingkatkan menggunakan **Tailwind CSS v4**, **Lucide Icons**, dan **Marked.js**.
+Proyek ini dibangun menggunakan **Python** dan kerangka kerja antarmuka **Gradio**, yang dirancang agar sangat portabel, aman, dan dapat dideploy dengan mudah di **HuggingFace Spaces**.
 
-## ✨ Fitur Unggulan
+---
 
-- **📂 Multi-Format**: Mendukung penulisan format Markdown (`.md`), Teks Polos (`.txt`), HTML (`.html`), JavaScript (`.js`), Python (`.py`), JSON (`.json`), dan CSS (`.css`).
-- **👁️ Live Preview**: Menampilkan pratinjau hasil render real-time (split-pane) untuk format Markdown dan HTML.
-- **💾 Penyimpanan Otomatis (Auto-Save)**: Catatan Anda aman tersimpan secara otomatis langsung di browser (`localStorage`) saat Anda mengetik.
-- **🔄 Pengurutan & Pencarian**: Filter catatan Anda secara instan berdasarkan kata kunci dan urutkan berdasarkan Tanggal Pembuatan, Tanggal Pembaruan, atau Judul secara Alfabetis (Menaik / Menurun).
-- **📥 Ekspor Berkas**:
-  - Unduh format berkas mentah asli.
-  - Ekspor dokumen mandiri ke format HTML yang rapi.
-  - Ekspor instan ke file **PDF** siap cetak menggunakan tata letak pencetakan browser bawaan.
-- **🌓 Mode Gelap (Dark Mode)**: Mendukung pengalihan tema terang dan gelap secara konsisten demi kenyamanan mata Anda.
-- **⌨️ Pintasan Keyboard**:
-  - `Ctrl + S` atau `Cmd + S` untuk menyimpan secara manual.
-  - `Ctrl + N` atau `Cmd + N` untuk membuat catatan baru seketika.
+## 🚀 Fitur Utama
 
-## 🛠️ Teknologi yang Digunakan
+- **🧹 Heuristic Text Cleaner**: Membersihkan draf tulisan kotor, transkrip video otomatis, atau salinan web berantakan dari tag HTML gantung, timestamp log `[00:00:00]`, metadata berlebih, spasi ganda, dan baris kosong ganda secara lokal.
+- **🧠 Hybrid AI Processing Modes**:
+  - *Executive Summary*: Rangkuman eksekutif ringkas untuk menyaring argumen inti.
+  - *Bullet Points Extract*: Ekstraksi butir-butir poin penting tindakan (actionable insights).
+  - *Ebook Chapter Drafting*: Merestrukturisasi catatan mentah yang acak menjadi draf struktur bab ebook yang terorganisir.
+- **📂 Multi-Format Exporter Engine**: Mengekspor hasil akhir ke dalam format standar Markdown (`.md`), Plaintext (`.txt`), atau payload skema JSON (`.json`) yang siap diintegrasikan dengan database eksternal.
+- **💻 Demo Interface Modern**: Antarmuka interaktif responsif berbasis Gradio dengan pengaturan parameter lanjutan seperti penyesuaian slider panjang rangkuman minimum/maksimum.
 
-- **HTML5 & CSS3**
-- [Tailwind CSS](https://tailwindcss.com/) — Kerangka kerja CSS modern untuk desain super responsif.
-- [Lucide Icons](https://lucide.dev/) — Set ikon SVG gratis yang indah dan konsisten.
-- [Marked.js](https://marked.js.org/) — Parser Markdown sisi klien yang sangat cepat.
+---
 
-## 🚀 Cara Penggunaan Lokal
+## 🛠️ Struktur Repositori
 
-1. Salin atau unduh repositori ini ke komputer lokal Anda.
-2. Buka berkas `index.html` langsung di panyungsi (browser) favorit Anda (Google Chrome, Firefox, Safari, Edge, dll.).
-3. Anda langsung siap menulis! Tidak memerlukan database eksternal ataupun instalasi server backend apa pun.
+Repositori portofolio ini dirancang agar sangat modular, bersih, dan mudah dipahami:
+
+```text
+Note-Book/
+├── app.py                 # Titik masuk aplikasi utama (Antarmuka Gradio UI)
+├── requirements.txt       # Kebutuhan library Python (Gradio, dll.)
+├── LICENSE                # Lisensi MIT resmi
+├── core/                  # Folder Logika Inti Aplikasi
+│   ├── __init__.py        # Inisialisasi package core
+│   ├── cleaner.py         # Penghapusan noise teks dan standardisasi baris
+│   ├── processor.py       # Pemrosesan AI dan logika Heuristic Fallback
+│   └── exporter.py        # Pemformatan akhir (Markdown, JSON, Plaintext)
+├── config/                # Konfigurasi Aplikasi
+│   ├── __init__.py
+│   └── modes.py           # Daftar mode pemrosesan dan format ekspor
+├── examples/              # Contoh Berkas Penggunaan
+│   ├── sample_input.txt   # Teks mentah berantakan sebelum dibersihkan
+│   └── sample_output.md   # Hasil akhir rapi dalam format Markdown (.md)
+└── docs/                  # Dokumentasi Lengkap Proyek
+    ├── blueprint.md       # Desain arsitektur sistem dan diagram alur
+    ├── roadmap.md         # Rencana peta jalan pengembangan ke depan
+    └── changelog.md       # Riwayat pembaruan dan rilis versi
+```
+
+---
+
+## 🔌 Cara Menjalankan Aplikasi Secara Lokal
+
+### Prasyarat
+Pastikan komputer Anda sudah terinstal **Python 3.8** atau versi yang lebih tinggi.
+
+### Langkah-langkah
+1. **Kloning Repositori**:
+   ```bash
+   git clone https://github.com/pusakamediaid-dotcom/Note-Book.git
+   cd Note-Book
+   ```
+
+2. **Instal Dependensi**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Jalankan Aplikasi**:
+   ```bash
+   python app.py
+   ```
+
+4. **Buka Browser**:
+   Akses aplikasi secara visual melalui tautan lokal berikut:  
+   👉 `http://localhost:7860`
+
+---
+
+## 🎯 Peta Jalan Pengembangan (Roadmap) Singkat
+
+- [x] Rilis awal struktur modular portofolio dan fungsionalitas pembersihan lokal.
+- [ ] Integrasi API OpenAI (`gpt-4o-mini`) dan HuggingFace Inference API lokal gratis.
+- [ ] Implementasi pengunggahan file langsung (`.docx`, `.pdf`, `.txt`).
+- [ ] Deployment instan demo ke platform **HuggingFace Spaces**.
 
 ---
 
 Sistem Aplikasi oleh **[Pusaka Media ID](https://github.com/pusakamediaid-dotcom)**
+Dibuat dengan dedikasi tinggi untuk portofolio kreator digital yang terstruktur dan berdampak.
